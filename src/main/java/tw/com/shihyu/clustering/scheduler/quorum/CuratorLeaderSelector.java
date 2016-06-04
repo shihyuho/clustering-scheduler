@@ -108,13 +108,12 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     leader.set(true);
     while (isLeader()) {
     }
-    leader.set(false);
   }
 
   @Override
   public void stateChanged(CuratorFramework client, ConnectionState newState) {
     if ((newState == ConnectionState.SUSPENDED) || (newState == ConnectionState.LOST)) {
-      leader.set(false);
+      relinquishLeadership();
       throw new CancelLeadershipException();
     }
   }
