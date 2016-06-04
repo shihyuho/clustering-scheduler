@@ -65,6 +65,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
     } catch (InterruptedException e) {
       start();
     }
+
     leaderLatch = new LeaderLatch(client, rootPath, contenderId);
     leaderLatch.start();
     setBooleanSupplier(leaderLatch::hasLeadership);
