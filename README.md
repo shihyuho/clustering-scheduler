@@ -7,9 +7,11 @@ Integrate Spring Scheduling and Quartz into ZooKeeper
 Choose a implementation of `LeaderElection` and register it into Spring.
 
 - CuratorLeaderLatch
+	- An implementation by using [Apache Curator](http://curator.apache.org) `LeaderLatch`
 - CuratorLeaderSelector
+	- An implementation by using [Apache Curator](http://curator.apache.org) `LeaderSelector`
 - ZooKeeperLeaderElection
-- PropertyLeaderElection
+	- An simple implementation of [ZooKeeper Recipe](http://zookeeper.apache.org/doc/trunk/recipes.html#sc_leaderElection)
 
 ```xml
 <bean id="leaderElection" class="tw.com.shihyu.clustering.scheduler.quorum.CuratorLeaderSelector">
