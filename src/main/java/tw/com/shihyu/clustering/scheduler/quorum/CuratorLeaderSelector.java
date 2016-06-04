@@ -83,12 +83,12 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     client = CuratorFrameworkFactory.newClient(connectString,
         new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries));
     client.start();
-
     try {
       client.getZookeeperClient().blockUntilConnectedOrTimedOut();
     } catch (InterruptedException e) {
       start();
     }
+
     leaderSelector = new LeaderSelector(client, rootPath, this);
     leaderSelector.autoRequeue();
     leaderSelector.setId(contenderId);
@@ -99,9 +99,6 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     cache.getListenable().addListener(this);
   }
 
-  /**
-   * 放棄 leadership
-   */
   public void relinquishLeadership() {
     leader.set(false);
   }
