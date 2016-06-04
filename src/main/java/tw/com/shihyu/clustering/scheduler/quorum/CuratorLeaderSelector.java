@@ -103,12 +103,6 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     leader.set(false);
   }
 
-  /**
-   * something wrong here..
-   * 
-   * @param client
-   * @throws Exception
-   */
   @Override
   public void takeLeadership(CuratorFramework client) throws Exception {
     leader.set(true);
