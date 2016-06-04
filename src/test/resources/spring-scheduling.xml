@@ -9,7 +9,6 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 	
 	<bean id="leaderElection" class="tw.com.shihyu.clustering.scheduler.quorum.CuratorLeaderSelector">
-		<property name="contenderId" value="im-shih-yu"/>
 		<property name="connectString" value="localhost:2181"/>
 	</bean>
 	

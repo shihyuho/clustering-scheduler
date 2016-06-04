@@ -98,4 +98,4 @@ public class MyJob implements Job {
 
 ## Exmaple
 
-`tw.com.shihyu.clustering.scheduler.quorum.LeaderElectionTest`
+`tw.com.shihyu.clustering.scheduler.Example`
