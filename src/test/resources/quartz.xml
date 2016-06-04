@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:beans="http://cxf.apache.org/configuration/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+			
+	<bean id="leaderElection" class="tw.com.shihyu.clustering.scheduler.quorum.CuratorLeaderSelector">
+		<property name="connectString" value="localhost:2181"/>
+	</bean>
+	
+	<bean id="myJobFactory" class="tw.com.shihyu.clustering.scheduler.quartz.LeaderElectionJobFactory">
+		<property name="jobFactory">
+			<bean class="org.springframework.scheduling.quartz.SpringBeanJobFactory"></bean>
+		</property>
+		<property name="leaderElection" ref="leaderElection"/>
+	</bean>
+	
+	<bean id="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	    <property name="jobFactory" ref="myJobFactory"/>
+	    <property name="schedulerName" value="MyScheduler" />
+	    <property name="triggers">
+	        <list>
+	            <ref bean="myTrigger" />
+	        </list>
+	    </property>
+	</bean>
+	
+	<bean id="myTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+	    <property name="jobDetail" ref="myJobDetail"/>
+	    <property name="cronExpression" value="0/5 * * * * ?" />
+	</bean> 
+	<bean id="myJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+	    <property name="jobClass" value="tw.com.shihyu.clustering.scheduler.MyJob"/>
+	</bean>
+	
+</beans>
