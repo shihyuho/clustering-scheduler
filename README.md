@@ -98,6 +98,8 @@ public class MyJob implements Job {
 
 ## Control scheduler behavior
 
+`tw.com.softleader.domain.scheduling.ScheduleManager` provides API to control:
+
 ```java
 @RestController
 @RequestMapping("/jobs")
