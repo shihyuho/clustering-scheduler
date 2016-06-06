@@ -7,6 +7,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Example {
@@ -16,7 +17,7 @@ public class Example {
     int contenders = 3;
     Executor executor = Executors.newFixedThreadPool(contenders);
 
-    Collection<ClassPathXmlApplicationContext> contexts = new ArrayList<>();
+    Collection<ConfigurableApplicationContext> contexts = new ArrayList<>();
     try {
       for (int i = 0; i < contenders; i++) {
         CompletableFuture.runAsync(() -> contexts.add(new ClassPathXmlApplicationContext(config)),
@@ -24,7 +25,7 @@ public class Example {
       }
       TimeUnit.SECONDS.sleep(30);
     } finally {
-      contexts.forEach(ClassPathXmlApplicationContext::close);
+      contexts.forEach(ConfigurableApplicationContext::close);
     }
   }
 
