@@ -26,7 +26,7 @@ Choose a implementation of `LeaderElection` and register it into Spring.
 `LeaderElectionTaskScheduler` is a `TaskScheduler` decorator to ensure Runnables runs only if current node elected as leadership.
 
 ```xml
-<bean id="myScheduler" class="tw.com.softleader.domain.scheduling.LeaderElectionTaskScheduler">
+<bean id="myScheduler" class="tw.com.shihyu.clustering.scheduler.LeaderElectionTaskScheduler">
 	<property name="leaderElection" ref="leaderElection"/>
 	<property name="taskScheduler">
 		<bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
