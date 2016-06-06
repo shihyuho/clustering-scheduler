@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.zookeeper.AsyncCallback.ChildrenCallback;
 import org.apache.zookeeper.AsyncCallback.StringCallback;
 import org.apache.zookeeper.CreateMode;
@@ -61,8 +61,8 @@ public class ZooKeeperLeaderElection
       rootPath = "/" + rootPath;
     }
     if (contenderId == null || contenderId.isEmpty()) {
-      contenderId = Long.toString(RandomUtils.nextLong(0, Long.MAX_VALUE));
-      log.debug("Generating random number [{}] for 'contenderId'", contenderId);
+      contenderId = UUID.randomUUID().toString();
+      log.debug("Generating random UUID [{}] for 'contenderId'", contenderId);
     }
     requireNonNull(contenderMode, "'contenderMode' is required");
     if (contenderPath == null || contenderPath.isEmpty()) {

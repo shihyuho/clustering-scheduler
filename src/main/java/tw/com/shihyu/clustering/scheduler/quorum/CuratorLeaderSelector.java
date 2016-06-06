@@ -3,9 +3,9 @@ package tw.com.shihyu.clustering.scheduler.quorum;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -60,8 +60,8 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
       rootPath = "/" + rootPath;
     }
     if (contenderId == null || contenderId.isEmpty()) {
-      contenderId = Long.toString(RandomUtils.nextLong(0, Long.MAX_VALUE));
-      log.debug("Generating random number [{}] for 'contenderId'", contenderId);
+      contenderId = UUID.randomUUID().toString();
+      log.debug("Generating random UUID [{}] for 'contenderId'", contenderId);
     }
 
     start();
