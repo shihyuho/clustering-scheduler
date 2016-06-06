@@ -37,8 +37,8 @@ import lombok.extern.slf4j.Slf4j;
  *      zookeeper.apache.org/doc/trunk/recipes.html#sc_leaderElection</a>
  */
 @Slf4j
-public class ZooKeeperLeaderElection
-    implements Watcher, InitializingBean, DisposableBean, AutoCloseable, LeaderElection {
+public class ZooKeeperLeaderElection implements LeaderElection, Relinquishable, Watcher,
+    InitializingBean, DisposableBean, AutoCloseable {
 
   private ZooKeeper zk;
   private @Setter String connectString;
@@ -185,8 +185,13 @@ public class ZooKeeperLeaderElection
     }
   }
 
-  public void relinquishLeadership() throws InterruptedException, KeeperException {
-    zk.delete(rootPath + contenderSequence, -1);
+  @Override
+  public void relinquish() {
+    try {
+      zk.delete(rootPath + contenderSequence, -1);
+    } catch (InterruptedException | KeeperException e) {
+      throw new Error(e);
+    }
   }
 
   @Override

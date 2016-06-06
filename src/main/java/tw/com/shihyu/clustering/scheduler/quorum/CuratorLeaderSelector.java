@@ -31,8 +31,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author Matt S.Y. Ho
  */
 @Slf4j
-public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorListener,
-    PathChildrenCacheListener, InitializingBean, DisposableBean, Closeable {
+public class CuratorLeaderSelector implements LeaderElection, Relinquishable,
+    LeaderSelectorListener, PathChildrenCacheListener, InitializingBean, DisposableBean, Closeable {
 
   private @Setter String connectString;
   private @Setter int baseSleepTimeMs = 1000;
@@ -99,7 +99,8 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     cache.getListenable().addListener(this);
   }
 
-  public void relinquishLeadership() {
+  @Override
+  public void relinquish() {
     leader.set(false);
   }
 
@@ -113,7 +114,7 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
   @Override
   public void stateChanged(CuratorFramework client, ConnectionState newState) {
     if ((newState == ConnectionState.SUSPENDED) || (newState == ConnectionState.LOST)) {
-      relinquishLeadership();
+      relinquish();
       throw new CancelLeadershipException();
     }
   }
@@ -135,7 +136,7 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
         String removedId = new String(event.getData().getData(), Charset.forName("UTF-8"));
         if (removedId.equals(contenderId)) {
           if (isLeader()) {
-            relinquishLeadership();
+            relinquish();
           } else {
             close();
             start();
