@@ -98,7 +98,7 @@ public class MyJob implements Job {
 
 ## Control scheduler behavior
 
-`tw.com.softleader.domain.scheduling.ScheduleManager` provides API to control:
+`tw.com.shihyu.clustering.scheduler.ScheduleManager` provides API to control:
 
 ```java
 @RestController
