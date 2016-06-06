@@ -2,6 +2,7 @@ package tw.com.shihyu.clustering.scheduler.quartz;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.quartz.Job;
@@ -16,7 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tw.com.shihyu.clustering.scheduler.ScheduleManager;
 import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
-import tw.com.shihyu.clustering.scheduler.quorum.Relinquishable;
 
 /**
  * A {@link SpringBeanJobFactory} decorator to ensure {@link Job Jobs} runs only if current node
@@ -66,14 +66,17 @@ public class LeaderElectionJobFactory implements ScheduleManager, JobFactory, In
 
   @Override
   public void relinquishLeadership() {
-    if (leaderElection instanceof Relinquishable) {
-      ((Relinquishable) leaderElection).relinquish();
-    }
+    leaderElection.relinquishLeadership();
   }
 
   @Override
   public boolean isLeader() {
     return leaderElection.isLeader();
+  }
+
+  @Override
+  public Map<String, Boolean> getParticipants() {
+    return leaderElection.getParticipants();
   }
 
 }

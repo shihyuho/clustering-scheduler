@@ -1,8 +1,11 @@
 package tw.com.shihyu.clustering.scheduler.quorum;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author Matt S.Y. Ho
  */
 @Slf4j
-public class CuratorLeaderSelector implements LeaderElection, Relinquishable,
-    LeaderSelectorListener, PathChildrenCacheListener, InitializingBean, DisposableBean, Closeable {
+public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorListener,
+    PathChildrenCacheListener, InitializingBean, DisposableBean, Closeable {
 
   private @Setter String connectString;
   private @Setter int baseSleepTimeMs = 1000;
@@ -100,7 +103,7 @@ public class CuratorLeaderSelector implements LeaderElection, Relinquishable,
   }
 
   @Override
-  public void relinquish() {
+  public void relinquishLeadership() {
     leader.set(false);
   }
 
@@ -114,7 +117,7 @@ public class CuratorLeaderSelector implements LeaderElection, Relinquishable,
   @Override
   public void stateChanged(CuratorFramework client, ConnectionState newState) {
     if ((newState == ConnectionState.SUSPENDED) || (newState == ConnectionState.LOST)) {
-      relinquish();
+      relinquishLeadership();
       throw new CancelLeadershipException();
     }
   }
@@ -136,7 +139,7 @@ public class CuratorLeaderSelector implements LeaderElection, Relinquishable,
         String removedId = new String(event.getData().getData(), Charset.forName("UTF-8"));
         if (removedId.equals(contenderId)) {
           if (isLeader()) {
-            relinquish();
+            relinquishLeadership();
           } else {
             close();
             start();
@@ -144,6 +147,16 @@ public class CuratorLeaderSelector implements LeaderElection, Relinquishable,
         }
       default:
         break;
+    }
+  }
+
+  @Override
+  public Map<String, Boolean> getParticipants() {
+    try {
+      return leaderSelector.getParticipants().stream()
+          .collect(toMap(Participant::getId, Participant::isLeader));
+    } catch (Exception e) {
+      throw new Error(e);
     }
   }
 }

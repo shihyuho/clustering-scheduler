@@ -1,5 +1,7 @@
 package tw.com.shihyu.clustering.scheduler;
 
+import java.util.Map;
+
 /**
  * Control scheduled jobs
  * 
@@ -28,5 +30,12 @@ public interface ScheduleManager {
    * @return <code>true</code> if current node is leader, otherwise <code>false</code>
    */
   boolean isLeader();
+
+  /**
+   * Returns the set of current participants in the leader election
+   * 
+   * @return Map of key: contenderId, value: isLeader
+   */
+  Map<String, Boolean> getParticipants();
 
 }

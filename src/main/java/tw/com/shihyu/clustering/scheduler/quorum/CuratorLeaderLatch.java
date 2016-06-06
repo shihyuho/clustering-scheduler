@@ -1,8 +1,11 @@
 package tw.com.shihyu.clustering.scheduler.quorum;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -108,6 +111,28 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
         }
       default:
         break;
+    }
+  }
+
+  @Override
+  public Map<String, Boolean> getParticipants() {
+    try {
+      return leaderLatch.getParticipants().stream()
+          .collect(toMap(Participant::getId, Participant::isLeader));
+    } catch (Exception e) {
+      throw new Error(e);
+    }
+  }
+
+  @Override
+  public void relinquishLeadership() {
+    if (isLeader()) {
+      try {
+        close();
+        start();
+      } catch (Exception e) {
+        throw new Error(e);
+      }
     }
   }
 

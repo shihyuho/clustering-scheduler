@@ -5,7 +5,9 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,8 +39,8 @@ import lombok.extern.slf4j.Slf4j;
  *      zookeeper.apache.org/doc/trunk/recipes.html#sc_leaderElection</a>
  */
 @Slf4j
-public class ZooKeeperLeaderElection implements LeaderElection, Relinquishable, Watcher,
-    InitializingBean, DisposableBean, AutoCloseable {
+public class ZooKeeperLeaderElection
+    implements LeaderElection, Watcher, InitializingBean, DisposableBean, AutoCloseable {
 
   private ZooKeeper zk;
   private @Setter String connectString;
@@ -152,7 +154,7 @@ public class ZooKeeperLeaderElection implements LeaderElection, Relinquishable, 
           checkLeader();
           break;
         case OK:
-          Collections.sort(children);
+          sort(children);
           int index = children.indexOf(contenderSequence);
           if (index == -1) { // Perhaps someone delete znode from somewhere else
             createContender();
@@ -186,7 +188,7 @@ public class ZooKeeperLeaderElection implements LeaderElection, Relinquishable, 
   }
 
   @Override
-  public void relinquish() {
+  public void relinquishLeadership() {
     try {
       zk.delete(rootPath + contenderSequence, -1);
     } catch (InterruptedException | KeeperException e) {
@@ -216,6 +218,10 @@ public class ZooKeeperLeaderElection implements LeaderElection, Relinquishable, 
     }
   }
 
+  private void sort(List<String> children) {
+    Collections.sort(children);
+  }
+
   @Override
   public String toString() {
     return "ZooKeeperLeaderElection{" + "contenderId='" + contenderId + '\''
@@ -225,6 +231,20 @@ public class ZooKeeperLeaderElection implements LeaderElection, Relinquishable, 
   @Override
   public boolean isLeader() {
     return leader.get();
+  }
+
+  @Override
+  public Map<String, Boolean> getParticipants() {
+    try {
+      Map<String, Boolean> participants = new HashMap<>();
+      List<String> children = zk.getChildren(rootPath, false);
+      sort(children);
+      participants.put(children.get(0), true);
+      children.stream().skip(1).forEach(child -> participants.put(child, false));
+      return participants;
+    } catch (KeeperException | InterruptedException e) {
+      throw new Error(e);
+    }
   }
 
 }

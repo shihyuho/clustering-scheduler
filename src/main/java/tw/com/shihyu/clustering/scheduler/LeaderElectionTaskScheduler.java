@@ -3,6 +3,7 @@ package tw.com.shihyu.clustering.scheduler;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,7 +14,6 @@ import org.springframework.scheduling.Trigger;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
-import tw.com.shihyu.clustering.scheduler.quorum.Relinquishable;
 
 /**
  * A {@link TaskScheduler} decorator to ensure {@link Runnable Runnables} runs only if current node
@@ -101,14 +101,17 @@ public class LeaderElectionTaskScheduler
 
   @Override
   public void relinquishLeadership() {
-    if (leaderElection instanceof Relinquishable) {
-      ((Relinquishable) leaderElection).relinquish();
-    }
+    leaderElection.relinquishLeadership();
   }
 
   @Override
   public boolean isLeader() {
     return leaderElection.isLeader();
+  }
+
+  @Override
+  public Map<String, Boolean> getParticipants() {
+    return leaderElection.getParticipants();
   }
 
 }
