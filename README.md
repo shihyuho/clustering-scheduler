@@ -121,7 +121,7 @@ public class JobController {
     manager.relinquishLeadership();
   }
 
-  @RequestMapping("/leader")
+  @RequestMapping("/is-leader")
   public boolean isLeader() {
     return manager.isLeader();
   }
