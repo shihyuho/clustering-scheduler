@@ -96,6 +96,38 @@ public class MyJob implements Job {
 }
 ```
 
+## Control scheduler behavior
+
+```java
+@RestController("/jobs")
+public class JobController {
+
+  @Autowired
+  private ScheduleManager manager;
+
+  @RequestMapping("/pause")
+  public void pause() {
+    manager.pause();
+  }
+
+  @RequestMapping("/resume")
+  public void resume() {
+    manager.resume();
+  }
+
+  @RequestMapping("/relinquish")
+  public void relinquish() {
+    manager.relinquishLeadership();
+  }
+
+  @RequestMapping("/leader")
+  public boolean isLeader() {
+    return manager.isLeader();
+  }
+
+}
+```
+
 ## Exmaple
 
 `tw.com.shihyu.clustering.scheduler.Example`

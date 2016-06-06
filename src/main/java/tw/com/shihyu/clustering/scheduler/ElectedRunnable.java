@@ -1,5 +1,7 @@
 package tw.com.shihyu.clustering.scheduler;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import lombok.AllArgsConstructor;
 import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
@@ -14,11 +16,17 @@ public class ElectedRunnable implements Runnable {
 
   private final LeaderElection leaderElection;
   private final Runnable runnable;
+  private final AtomicBoolean play;
+
+  public ElectedRunnable(LeaderElection leaderElection, Runnable runnable) {
+    this(leaderElection, runnable, new AtomicBoolean(true));
+  }
 
   @Override
   public void run() {
-    if (leaderElection.isLeader()) {
+    if (play.get() && leaderElection.isLeader()) {
       runnable.run();
     }
   }
+
 }
