@@ -99,7 +99,8 @@ public class MyJob implements Job {
 ## Control scheduler behavior
 
 ```java
-@RestController("/jobs")
+@RestController
+@RequestMapping("/jobs")
 public class JobController {
 
   @Autowired
