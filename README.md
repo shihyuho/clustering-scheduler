@@ -125,6 +125,11 @@ public class JobController {
   public boolean isLeader() {
     return manager.isLeader();
   }
+  
+  @RequestMapping("/participants")
+  public Map<String, Boolean> getParticipants() {
+    return manager.getParticipants();
+  }
 
 }
 ```
