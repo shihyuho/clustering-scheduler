@@ -2,7 +2,10 @@ package tw.com.shihyu.clustering.scheduler.quartz;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.quartz.Job;
@@ -16,6 +19,7 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tw.com.shihyu.clustering.scheduler.ScheduleManager;
+import tw.com.shihyu.clustering.scheduler.quorum.Contender;
 import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 /**
@@ -60,6 +64,12 @@ public class LeaderElectionJobFactory implements ScheduleManager, JobFactory, In
   }
 
   @Override
+  public ScheduledFuture<?> pause(long timeout, TimeUnit unit) {
+    pause();
+    return Executors.newScheduledThreadPool(1).schedule(() -> resume(), timeout, unit);
+  }
+
+  @Override
   public void resume() {
     play.set(true);
   }
@@ -70,13 +80,13 @@ public class LeaderElectionJobFactory implements ScheduleManager, JobFactory, In
   }
 
   @Override
-  public boolean isLeader() {
-    return leaderElection.isLeader();
+  public Contender getCurrent() {
+    return new Contender(leaderElection.getContenderId(), leaderElection.isLeader());
   }
 
   @Override
-  public Map<String, Boolean> getParticipants() {
-    return leaderElection.getParticipants();
+  public Collection<Contender> getContenders() {
+    return leaderElection.getContenders();
   }
 
 }

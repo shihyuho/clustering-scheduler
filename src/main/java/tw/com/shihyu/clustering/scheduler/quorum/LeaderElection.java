@@ -1,6 +1,6 @@
 package tw.com.shihyu.clustering.scheduler.quorum;
 
-import java.util.Map;
+import java.util.Collection;
 
 /**
  * 
@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public interface LeaderElection {
 
+  String getContenderId();
+
   boolean isLeader();
 
   void relinquishLeadership();
@@ -16,8 +18,8 @@ public interface LeaderElection {
   /**
    * Returns the set of current participants in the leader election
    * 
-   * @return Map of key: contenderId, value: isLeader
+   * @return all contenders in leader election
    */
-  Map<String, Boolean> getParticipants();
+  Collection<Contender> getContenders();
 
 }

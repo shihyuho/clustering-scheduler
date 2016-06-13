@@ -1,9 +1,13 @@
 package tw.com.shihyu.clustering.scheduler;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import tw.com.shihyu.clustering.scheduler.quorum.Contender;
 
 /**
- * Control scheduled jobs
+ * A manager to controls scheduled jobs
  * 
  * @author Matt S.Y. Ho
  *
@@ -16,26 +20,35 @@ public interface ScheduleManager {
   void pause();
 
   /**
+   * Pause scheduled jobs until the given timeout.
+   * 
+   * @param timeout
+   * @param unit
+   * @return A {@link ScheduledFuture} to call {@link #resume()}
+   */
+  ScheduledFuture<?> pause(long timeout, TimeUnit unit);
+
+  /**
    * Continue scheduled jobs
    */
   void resume();
 
   /**
-   * Relinquish leadership
+   * Relinquish the leadership
    */
   void relinquishLeadership();
 
   /**
    * 
-   * @return <code>true</code> if current node is leader, otherwise <code>false</code>
+   * @return current node information
    */
-  boolean isLeader();
+  Contender getCurrent();
 
   /**
    * Returns the set of current participants in the leader election
    * 
-   * @return Map of key: contenderId, value: isLeader
+   * @return all contenders in leader election
    */
-  Map<String, Boolean> getParticipants();
+  Collection<Contender> getContenders();
 
 }

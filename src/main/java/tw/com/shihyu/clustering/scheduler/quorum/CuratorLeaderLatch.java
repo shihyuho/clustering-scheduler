@@ -1,11 +1,12 @@
 package tw.com.shihyu.clustering.scheduler.quorum;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toList;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
-import java.util.Map;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -14,7 +15,6 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.leader.LeaderLatch;
-import org.apache.curator.framework.recipes.leader.Participant;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
 import org.springframework.beans.factory.DisposableBean;
@@ -36,7 +36,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
   private @Setter int baseSleepTimeMs = 1000;
   private @Setter int maxRetries = Integer.MAX_VALUE;
   private @Setter String rootPath = "/election";
-  private @Getter @Setter String contenderId;
+  private @Setter @Getter String contenderId;
   private LeaderLatch leaderLatch;
   private CuratorFramework client;
   private PathChildrenCache cache;
@@ -52,7 +52,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
       rootPath = "/" + rootPath;
     }
     if (contenderId == null || contenderId.isEmpty()) {
-      contenderId = UUID.randomUUID().toString();
+      contenderId = InetAddress.getLocalHost() + "/" + UUID.randomUUID();
       log.debug("Generating random UUID [{}] for 'contenderId'", contenderId);
     }
 
@@ -90,10 +90,6 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
     CloseableUtils.closeQuietly(client);
   }
 
-  public Participant getCurrentLeader() throws Exception {
-    return leaderLatch.getLeader();
-  }
-
   @Override
   public String toString() {
     return "CuratorLeaderLatch{" + "contenderId='" + contenderId + '\'' + ", isLeader=" + isLeader()
@@ -115,10 +111,10 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
   }
 
   @Override
-  public Map<String, Boolean> getParticipants() {
+  public Collection<Contender> getContenders() {
     try {
-      return leaderLatch.getParticipants().stream()
-          .collect(toMap(Participant::getId, Participant::isLeader));
+      return leaderLatch.getParticipants().stream().map(p -> new Contender(p.getId(), p.isLeader()))
+          .collect(toList());
     } catch (Exception e) {
       throw new Error(e);
     }

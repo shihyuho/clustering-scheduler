@@ -4,10 +4,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -63,8 +64,8 @@ public class ZooKeeperLeaderElection
       rootPath = "/" + rootPath;
     }
     if (contenderId == null || contenderId.isEmpty()) {
-      contenderId = UUID.randomUUID().toString();
-      log.debug("Generating random UUID [{}] for 'contenderId'", contenderId);
+      contenderId = InetAddress.getLocalHost() + "/" + UUID.randomUUID();
+      log.debug("Generating random ID [{}] for 'contenderId'", contenderId);
     }
     requireNonNull(contenderMode, "'contenderMode' is required");
     if (contenderPath == null || contenderPath.isEmpty()) {
@@ -234,14 +235,14 @@ public class ZooKeeperLeaderElection
   }
 
   @Override
-  public Map<String, Boolean> getParticipants() {
+  public Collection<Contender> getContenders() {
     try {
-      Map<String, Boolean> participants = new HashMap<>();
+      Collection<Contender> contenders = new ArrayList<>();
       List<String> children = zk.getChildren(rootPath, false);
       sort(children);
-      participants.put(children.get(0), true);
-      children.stream().skip(1).forEach(child -> participants.put(child, false));
-      return participants;
+      contenders.add(new Contender(children.get(0), true));
+      children.stream().skip(1).forEach(child -> contenders.add(new Contender(child, false)));
+      return contenders;
     } catch (KeeperException | InterruptedException e) {
       throw new Error(e);
     }
