@@ -66,6 +66,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
     try {
       client.getZookeeperClient().blockUntilConnectedOrTimedOut();
     } catch (InterruptedException e) {
+      client.close();
       start();
     }
 

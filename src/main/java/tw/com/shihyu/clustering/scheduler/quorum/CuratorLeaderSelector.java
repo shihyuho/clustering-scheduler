@@ -89,6 +89,7 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     try {
       client.getZookeeperClient().blockUntilConnectedOrTimedOut();
     } catch (InterruptedException e) {
+      client.close();
       start();
     }
 
