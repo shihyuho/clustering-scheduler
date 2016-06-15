@@ -77,7 +77,7 @@ public class ZooKeeperLeaderElection
     log.info("Registering ZooKeeper leader election Contender '{}' for [{}{}]", contenderId,
         connectString, rootPath);
 
-    runForLeader();
+    start();
   }
 
   @Override
@@ -90,7 +90,7 @@ public class ZooKeeperLeaderElection
     close();
   }
 
-  private void runForLeader() throws IOException {
+  private void start() throws IOException {
     zk = new ZooKeeper(connectString, sessionTimeoutMs, this);
     createParent();
     createContender();
@@ -210,7 +210,7 @@ public class ZooKeeperLeaderElection
         } catch (Exception e) {
         }
         try {
-          runForLeader();
+          start();
         } catch (Exception e) {
           log.error("[{}] Something went wrong when running for leader", contenderId, e);
         }
