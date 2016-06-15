@@ -34,7 +34,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
 
   private @Setter String connectString;
   private @Setter int baseSleepTimeMs = 1000;
-  private @Setter int maxRetries = Integer.MAX_VALUE;
+  private @Setter int maxRetries = 29; // org.apache.curator.retry.ExponentialBackoffRetry.MAX_RETRIES_LIMIT
   private @Setter String rootPath = "/election";
   private @Setter @Getter String contenderId;
   private LeaderLatch leaderLatch;
