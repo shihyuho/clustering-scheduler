@@ -1,7 +1,9 @@
 package tw.com.shihyu.clustering.scheduler.quorum;
 
+import java.io.Closeable;
 import java.util.function.BooleanSupplier;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import lombok.Setter;
@@ -12,7 +14,8 @@ import lombok.Setter;
  * @author Matt S.Y. Ho
  *
  */
-public abstract class BooleanLeaderElection implements LeaderElection, InitializingBean {
+public abstract class BooleanLeaderElection
+    implements LeaderElection, Closeable, DisposableBean, InitializingBean {
 
   private @Setter BooleanSupplier booleanSupplier;
 
@@ -21,4 +24,8 @@ public abstract class BooleanLeaderElection implements LeaderElection, Initializ
     return booleanSupplier.getAsBoolean();
   }
 
+  @Override
+  public void destroy() throws Exception {
+    close();
+  }
 }

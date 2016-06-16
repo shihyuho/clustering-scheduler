@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  *      zookeeper.apache.org/doc/trunk/recipes.html#sc_leaderElection</a>
  */
 @Slf4j
-public class ZooKeeperLeaderElection
+public class SequenceLeaderElection
     implements LeaderElection, Watcher, InitializingBean, DisposableBean, AutoCloseable {
 
   private ZooKeeper zk;
@@ -81,13 +81,12 @@ public class ZooKeeperLeaderElection
   }
 
   @Override
-  public void close() throws Exception {
-    zk.close();
-  }
-
-  @Override
-  public void destroy() throws Exception {
-    close();
+  public void close() {
+    try {
+      zk.close();
+    } catch (InterruptedException e) {
+      throw new Error(e);
+    }
   }
 
   private void start() throws IOException {
@@ -225,7 +224,7 @@ public class ZooKeeperLeaderElection
 
   @Override
   public String toString() {
-    return "ZooKeeperLeaderElection{" + "contenderId='" + contenderId + '\''
+    return this.getClass().getSimpleName() + "{" + "contenderId='" + contenderId + '\''
         + ", contenderSequence='" + contenderSequence + "', isLeader=" + isLeader() + '}';
   }
 
@@ -246,6 +245,11 @@ public class ZooKeeperLeaderElection
     } catch (KeeperException | InterruptedException e) {
       throw new Error(e);
     }
+  }
+
+  @Override
+  public void destroy() throws Exception {
+    clone();
   }
 
 }

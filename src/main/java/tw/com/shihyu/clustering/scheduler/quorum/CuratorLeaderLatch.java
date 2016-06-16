@@ -59,7 +59,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
     start();
   }
 
-  private void start() throws Exception {
+  private synchronized void start() throws Exception {
     client = CuratorFrameworkFactory.newClient(connectString,
         new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries));
     client.start();
@@ -80,11 +80,6 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
   }
 
   @Override
-  public void destroy() throws Exception {
-    close();
-  }
-
-  @Override
   public void close() throws IOException {
     CloseableUtils.closeQuietly(cache);
     CloseableUtils.closeQuietly(leaderLatch);
@@ -93,8 +88,8 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
 
   @Override
   public String toString() {
-    return "CuratorLeaderLatch{" + "contenderId='" + contenderId + '\'' + ", isLeader=" + isLeader()
-        + '}';
+    return this.getClass().getSimpleName() + "{" + "contenderId='" + contenderId + '\''
+        + ", isLeader=" + isLeader() + '}';
   }
 
   @Override

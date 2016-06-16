@@ -82,7 +82,7 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
     close();
   }
 
-  private void start() throws Exception {
+  private synchronized void start() throws Exception {
     client = CuratorFrameworkFactory.newClient(connectString,
         new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries));
     client.start();
@@ -125,8 +125,8 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
 
   @Override
   public String toString() {
-    return "CuratorLeaderSelector" + "{" + "contenderId='" + contenderId + '\'' + ", isLeader="
-        + isLeader() + '}';
+    return this.getClass().getSimpleName() + "{" + "contenderId='" + contenderId + '\''
+        + ", isLeader=" + isLeader() + '}';
   }
 
   @Override
