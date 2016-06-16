@@ -4,11 +4,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-public class WeightLeaderElectionTest {
+public class LoadAverageLeaderElectionTest {
 
   @Test
   public void test() throws Exception {
-    try (WeightLeaderElection election = new WeightLeaderElection()) {
+    try (LoadAverageLeaderElection election = new LoadAverageLeaderElection()) {
       election.setConnectString("localhost:2181");
       election.afterPropertiesSet();
 

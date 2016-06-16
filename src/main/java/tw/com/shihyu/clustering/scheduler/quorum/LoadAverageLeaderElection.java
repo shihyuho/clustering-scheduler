@@ -35,16 +35,17 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A simple load balance {@link LeaderElection} implementation
+ * A simple load balance {@link LeaderElection} implementation by checking load average from
+ * operation system
  * <p>
  * 
- * Recipe: the higher weight the better, the highest weight is the leader
+ * Recipe: the lower loading the better, the lowest loading is the leader
  * 
  * @author Matt S.Y. Ho
  *
  */
 @Slf4j
-public class WeightLeaderElection extends BooleanLeaderElection
+public class LoadAverageLeaderElection extends BooleanLeaderElection
     implements PathChildrenCacheListener, ConnectionStateListener {
 
   private @Setter String connectString;
@@ -57,10 +58,10 @@ public class WeightLeaderElection extends BooleanLeaderElection
   private String contenderSequence;
   private @Setter String contenderPath = "/lb-";
   private AtomicBoolean leader = new AtomicBoolean();
-  private AtomicDouble weight = new AtomicDouble();
+  private AtomicDouble loading = new AtomicDouble();
   private ScheduledExecutorService executor;
-  private @Setter int checkWeightDelay = 10;
-  private @Setter TimeUnit checkWeightUnit = TimeUnit.SECONDS;
+  private @Setter int checkLoadingDelay = 10;
+  private @Setter TimeUnit checkLoadingUnit = TimeUnit.SECONDS;
 
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -103,17 +104,18 @@ public class WeightLeaderElection extends BooleanLeaderElection
     cache.getListenable().addListener(this);
 
     executor = Executors.newScheduledThreadPool(1);
-    executor.scheduleWithFixedDelay(this::checkWeight, 0, checkWeightDelay, checkWeightUnit);
+    executor.scheduleWithFixedDelay(this::checkLoading, 0, checkLoadingDelay, checkLoadingUnit);
   }
 
-  private void checkWeight() {
+  private void checkLoading() {
     // TODO: windows doesn't implement this method
-    double current = ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
-    if (weight.get() != current) {
+    double current = ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
+        / ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors();
+    if (loading.get() != current) {
       try {
         client.setData().forPath(rootPath + "/" + contenderSequence,
             (contenderId + "#" + current).getBytes("UTF-8"));
-        weight.set(current);
+        loading.set(current);
         checkLeadership();
       } catch (Exception e) {
         log.error("{}", e);
@@ -124,15 +126,15 @@ public class WeightLeaderElection extends BooleanLeaderElection
   @Override
   public String toString() {
     return this.getClass().getSimpleName() + "{" + "contenderId='" + contenderId + '\''
-        + ", isLeader=" + isLeader() + ", weight=" + weight.get() + '}';
+        + ", isLeader=" + isLeader() + ", loadAverage=" + loading.get() + '}';
   }
 
   @Override
   public Collection<Contender> getContenders() {
     try {
       Collection<Contender> contenders = new ArrayList<>();
-      List<ChildWeight> children = getSortedChildren();
-      ChildWeight bestWeight = children.get(0);
+      List<ChildLoading> children = getSortedChildren();
+      ChildLoading bestWeight = children.get(0);
       contenders.add(new Contender(bestWeight.id, bestWeight.isAvailable()));
       children.stream().skip(1).forEach(child -> contenders.add(new Contender(child.id, false)));
       return contenders;
@@ -161,7 +163,7 @@ public class WeightLeaderElection extends BooleanLeaderElection
   }
 
   private void checkLeadership() throws Exception {
-    ChildWeight bestWeight = getSortedChildren().get(0);
+    ChildLoading bestWeight = getSortedChildren().get(0);
     if (bestWeight.isAvailable() && bestWeight.id.equals(contenderSequence)) {
       leader.compareAndSet(false, true);
     } else {
@@ -169,32 +171,32 @@ public class WeightLeaderElection extends BooleanLeaderElection
     }
   }
 
-  private List<ChildWeight> getSortedChildren() throws Exception {
+  private List<ChildLoading> getSortedChildren() throws Exception {
     return client.getChildren().forPath(rootPath).stream().map(child -> {
       try {
         String data = new String(client.getData().forPath(rootPath + "/" + child), "UTF-8");
-        String weight = data.substring(data.lastIndexOf("#") + 1);
-        return new ChildWeight(child, Double.parseDouble(weight));
+        String loading = data.substring(data.lastIndexOf("#") + 1);
+        return new ChildLoading(child, Double.parseDouble(loading));
       } catch (NoNodeException e) {
       } catch (Exception e) {
         log.error("{}", e);
       }
-      return new ChildWeight(child, -1d);
+      return new ChildLoading(child, -1d);
     }).sorted().collect(toList());
   }
 
   @AllArgsConstructor
-  private class ChildWeight implements Comparable<ChildWeight> {
+  private class ChildLoading implements Comparable<ChildLoading> {
     final String id;
-    final double weight;
+    final double loading;
 
     boolean isAvailable() {
-      return weight > 0;
+      return loading > 0;
     }
 
     @Override
-    public int compareTo(ChildWeight other) {
-      return Double.compare(other.weight, weight); // the higher weight the better
+    public int compareTo(ChildLoading other) {
+      return Double.compare(loading, other.loading);
     }
   }
 
