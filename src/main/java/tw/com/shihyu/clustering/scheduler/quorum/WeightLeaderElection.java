@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  * A simple load balance {@link LeaderElection} implementation
  * <p>
  * 
- * Recipe: the higher weight the better
+ * Recipe: the higher weight the better, the highest weight is the leader
  * 
  * @author Matt S.Y. Ho
  *
