@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * Automatically gather all {@link ScheduleManager} registered in Spring
+ * Automatically gather and control all {@link ScheduleManager} registered in Spring
  * 
  * @author Matt S.Y. Ho
  *
