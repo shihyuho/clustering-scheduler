@@ -9,8 +9,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 /**
  * Automatically gather all {@link ScheduleManager} registered in Spring
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Component;
  * @author Matt S.Y. Ho
  *
  */
-@Primary
-@Component
 public class ScheduleManagers
     implements ScheduleManager, InitializingBean, ApplicationContextAware {
 
