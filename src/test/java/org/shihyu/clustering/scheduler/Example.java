@@ -14,12 +14,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Example {
 
   public static void main(String[] args) {
-    String config = "spring-scheduling.xml"; // or quartz.xml
     int contenders = 3;
     Collection<ConfigurableApplicationContext> contexts = new ArrayList<>();
     try {
       for (int contender = 0; contender < contenders; contender++) {
-        contexts.add(new ClassPathXmlApplicationContext(config));
+        contexts.add(new ClassPathXmlApplicationContext("scheduling.xml"));
       }
       Collection<LeaderElection> elections =
           contexts.stream().map(ctx -> ctx.getBean(LeaderElection.class)).collect(toList());

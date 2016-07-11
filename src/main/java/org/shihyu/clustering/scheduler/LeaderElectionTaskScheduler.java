@@ -4,9 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.shihyu.clustering.scheduler.quorum.Contender;
@@ -95,12 +93,6 @@ public class LeaderElectionTaskScheduler
   @Override
   public void pause() {
     play.set(false);
-  }
-
-  @Override
-  public ScheduledFuture<?> pause(long timeout, TimeUnit unit) {
-    pause();
-    return Executors.newScheduledThreadPool(1).schedule(() -> resume(), timeout, unit);
   }
 
   @Override

@@ -1,6 +1,7 @@
 package org.shihyu.clustering.scheduler;
 
 import java.util.Collection;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +27,10 @@ public interface ScheduleManager {
    * @param unit
    * @return A {@link ScheduledFuture} to call {@link #resume()}
    */
-  ScheduledFuture<?> pause(long timeout, TimeUnit unit);
+  default ScheduledFuture<?> pause(long timeout, TimeUnit unit) {
+    pause();
+    return Executors.newScheduledThreadPool(1).schedule(() -> resume(), timeout, unit);
+  }
 
   /**
    * Continue scheduled jobs

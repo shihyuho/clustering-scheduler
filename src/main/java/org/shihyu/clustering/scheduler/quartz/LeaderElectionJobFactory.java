@@ -3,9 +3,6 @@ package org.shihyu.clustering.scheduler.quartz;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.quartz.Job;
@@ -61,12 +58,6 @@ public class LeaderElectionJobFactory implements ScheduleManager, JobFactory, In
   @Override
   public void pause() {
     play.set(false);
-  }
-
-  @Override
-  public ScheduledFuture<?> pause(long timeout, TimeUnit unit) {
-    pause();
-    return Executors.newScheduledThreadPool(1).schedule(() -> resume(), timeout, unit);
   }
 
   @Override
