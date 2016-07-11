@@ -1,4 +1,4 @@
-package tw.com.shihyu.clustering.scheduler.quartz;
+package org.shihyu.clustering.scheduler.quartz;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,14 +13,14 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.TriggerFiredBundle;
+import org.shihyu.clustering.scheduler.ScheduleManager;
+import org.shihyu.clustering.scheduler.quorum.Contender;
+import org.shihyu.clustering.scheduler.quorum.LeaderElection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import tw.com.shihyu.clustering.scheduler.ScheduleManager;
-import tw.com.shihyu.clustering.scheduler.quorum.Contender;
-import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 /**
  * A {@link SpringBeanJobFactory} decorator to ensure {@link Job Jobs} runs only if current node

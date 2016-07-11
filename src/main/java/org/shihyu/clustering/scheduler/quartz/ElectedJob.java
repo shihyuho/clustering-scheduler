@@ -1,13 +1,13 @@
-package tw.com.shihyu.clustering.scheduler.quartz;
+package org.shihyu.clustering.scheduler.quartz;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 import lombok.AllArgsConstructor;
-import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 /**
  * Execute only if current node elected as leadership

@@ -1,4 +1,4 @@
-package tw.com.shihyu.clustering.scheduler;
+package org.shihyu.clustering.scheduler;
 
 import static java.util.Objects.requireNonNull;
 
@@ -9,14 +9,14 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.shihyu.clustering.scheduler.quorum.Contender;
+import org.shihyu.clustering.scheduler.quorum.LeaderElection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import tw.com.shihyu.clustering.scheduler.quorum.Contender;
-import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 /**
  * A {@link TaskScheduler} decorator to ensure {@link Runnable Runnables} runs only if current node

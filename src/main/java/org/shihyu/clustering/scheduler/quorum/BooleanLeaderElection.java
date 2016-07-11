@@ -1,4 +1,4 @@
-package tw.com.shihyu.clustering.scheduler.quorum;
+package org.shihyu.clustering.scheduler.quorum;
 
 import java.io.Closeable;
 import java.util.function.BooleanSupplier;

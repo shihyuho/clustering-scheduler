@@ -14,7 +14,7 @@ Choose a implementation of `LeaderElection` and register it into Spring.
 	- An simple implementation of [ZooKeeper Recipe](http://zookeeper.apache.org/doc/trunk/recipes.html#sc_leaderElection)
 
 ```xml
-<bean id="leaderElection" class="tw.com.shihyu.clustering.scheduler.quorum.CuratorLeaderSelector">
+<bean id="leaderElection" class="org.shihyu.clustering.scheduler.quorum.CuratorLeaderSelector">
 	<property name="connectString" value="localhost:2181"/>
 </bean>
 ```
@@ -26,7 +26,7 @@ Choose a implementation of `LeaderElection` and register it into Spring.
 `LeaderElectionTaskScheduler` is a `TaskScheduler` decorator to ensure Runnables runs only if current node elected as leadership.
 
 ```xml
-<bean id="myScheduler" class="tw.com.shihyu.clustering.scheduler.LeaderElectionTaskScheduler">
+<bean id="myScheduler" class="org.shihyu.clustering.scheduler.LeaderElectionTaskScheduler">
 	<property name="leaderElection" ref="leaderElection"/>
 	<property name="taskScheduler">
 		<bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
@@ -57,7 +57,7 @@ public class MyScheduled {
 `LeaderElectionSpringBeanJobFactory` ensures Jobs runs only if current node elected as leadership as well.
 
 ```xml
-<bean id="myJobFactory" class="tw.com.shihyu.clustering.scheduler.quartz.LeaderElectionJobFactory">
+<bean id="myJobFactory" class="org.shihyu.clustering.scheduler.quartz.LeaderElectionJobFactory">
 	<property name="jobFactory">
 		<bean class="org.springframework.scheduling.quartz.SpringBeanJobFactory"></bean>
 	</property>
@@ -79,7 +79,7 @@ public class MyScheduled {
     <property name="cronExpression" value="0/5 * * * * ?" />
 </bean> 
 <bean id="myJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-    <property name="jobClass" value="tw.com.shihyu.clustering.scheduler.MyJob"/>
+    <property name="jobClass" value="org.shihyu.clustering.scheduler.MyJob"/>
 </bean>
 ```
 
@@ -98,7 +98,7 @@ public class MyJob implements Job {
 
 ## Control scheduler behavior
 
-`tw.com.shihyu.clustering.scheduler.ScheduleManager` provides API to control:
+`org.shihyu.clustering.scheduler.ScheduleManager` provides API to control:
 
 ```java
 @RestController
@@ -138,4 +138,4 @@ public class JobController {
 
 ## Exmaple
 
-`tw.com.shihyu.clustering.scheduler.Example`
+`org.shihyu.clustering.scheduler.Example`

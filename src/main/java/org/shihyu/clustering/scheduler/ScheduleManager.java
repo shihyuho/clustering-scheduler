@@ -1,10 +1,10 @@
-package tw.com.shihyu.clustering.scheduler;
+package org.shihyu.clustering.scheduler;
 
 import java.util.Collection;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import tw.com.shihyu.clustering.scheduler.quorum.Contender;
+import org.shihyu.clustering.scheduler.quorum.Contender;
 
 /**
  * A manager to controls scheduled jobs

@@ -1,4 +1,4 @@
-package tw.com.shihyu.clustering.scheduler;
+package org.shihyu.clustering.scheduler;
 
 import static java.util.stream.Collectors.toList;
 
@@ -7,10 +7,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
+import org.shihyu.clustering.scheduler.quorum.LeaderElection;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 public class Example {
 

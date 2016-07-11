@@ -1,9 +1,10 @@
-package tw.com.shihyu.clustering.scheduler;
+package org.shihyu.clustering.scheduler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+
 import lombok.AllArgsConstructor;
-import tw.com.shihyu.clustering.scheduler.quorum.LeaderElection;
 
 /**
  * Run only if current node elected as leadership
