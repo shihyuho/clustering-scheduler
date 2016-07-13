@@ -3,8 +3,9 @@ package org.shihyu.clustering.scheduler.quorum;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +22,6 @@ import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.springframework.beans.factory.DisposableBean;
@@ -40,10 +40,11 @@ import lombok.extern.slf4j.Slf4j;
  *      zookeeper.apache.org/doc/trunk/recipes.html#sc_leaderElection</a>
  */
 @Slf4j
-public class SequenceLeaderElection
+public class ZooKeeperLeaderElection
     implements LeaderElection, Watcher, InitializingBean, DisposableBean, AutoCloseable {
 
   private ZooKeeper zk;
+  private @Setter Charset charset = StandardCharsets.UTF_8;
   private @Setter String connectString;
   private @Setter int sessionTimeoutMs = 15000;
   private @Setter String rootPath = "/election";
@@ -81,12 +82,8 @@ public class SequenceLeaderElection
   }
 
   @Override
-  public void close() {
-    try {
-      zk.close();
-    } catch (InterruptedException e) {
-      throw new Error(e);
-    }
+  public void close() throws Exception {
+    zk.close();
   }
 
   private void start() throws IOException {
@@ -96,12 +93,8 @@ public class SequenceLeaderElection
   }
 
   private void createContender() {
-    try {
-      zk.create(rootPath + contenderPath, contenderId.getBytes("UTF-8"), Ids.OPEN_ACL_UNSAFE,
-          contenderMode, acquireContenderSequence, null);
-    } catch (UnsupportedEncodingException e) {
-      throw new Error(e); // this should never happen
-    }
+    zk.create(rootPath + contenderPath, contenderId.getBytes(charset), Ids.OPEN_ACL_UNSAFE,
+        contenderMode, acquireContenderSequence, null);
   }
 
   private StringCallback acquireContenderSequence = new StringCallback() {
@@ -130,21 +123,23 @@ public class SequenceLeaderElection
   };
 
   private void checkLeader() {
-    zk.getChildren(rootPath, candidateChanged, attemptToTakeLeadership, null);
+    zk.getChildren(rootPath, false, attemptToTakeLeadership, null);
   }
 
-  private Watcher candidateChanged = new Watcher() {
+  private Watcher znodeDeleted = new Watcher() {
     @Override
     public void process(WatchedEvent e) {
-      if (e.getType() == EventType.NodeChildrenChanged) {
-        assert rootPath.equals(e.getPath());
-        checkLeader();
+      switch (e.getType()) {
+        case NodeDeleted:
+          assert rootPath.equals(e.getPath());
+          checkLeader();
+          break;
+        default:
+          break;
       }
     }
   };
 
-  // TODO: probably causes a herd effect: If the number of clients is large, it causes a spike on
-  // the number of operations that ZooKeeper servers have to process.
   private ChildrenCallback attemptToTakeLeadership = new ChildrenCallback() {
     @Override
     public void processResult(int rc, String path, Object ctx, List<String> children) {
@@ -154,7 +149,7 @@ public class SequenceLeaderElection
           checkLeader();
           break;
         case OK:
-          sort(children);
+          sortAsc(children);
           int index = children.indexOf(contenderSequence);
           if (index == -1) { // Perhaps someone delete znode from somewhere else
             createContender();
@@ -164,6 +159,11 @@ public class SequenceLeaderElection
           } else {
             log.info("[{}] Released the leadership", contenderId);
             leader.set(false);
+            try {
+              zk.getChildren(rootPath + "/" + children.get(index - 1), znodeDeleted);
+            } catch (KeeperException | InterruptedException e) {
+              throw new Error(e);
+            }
           }
           break;
         default:
@@ -190,7 +190,9 @@ public class SequenceLeaderElection
   @Override
   public void relinquishLeadership() {
     try {
-      zk.delete(rootPath + contenderSequence, -1);
+      zk.delete(rootPath + "/" + contenderSequence, -1);
+      leader.set(false);
+      createContender();
     } catch (InterruptedException | KeeperException e) {
       throw new Error(e);
     }
@@ -218,7 +220,7 @@ public class SequenceLeaderElection
     }
   }
 
-  private void sort(List<String> children) {
+  private void sortAsc(List<String> children) {
     Collections.sort(children);
   }
 
@@ -238,10 +240,19 @@ public class SequenceLeaderElection
     try {
       Collection<Contender> contenders = new ArrayList<>();
       List<String> children = zk.getChildren(rootPath, false);
-      sort(children);
-      contenders.add(new Contender(children.get(0), true));
-      children.stream().skip(1).forEach(child -> contenders.add(new Contender(child, false)));
+      sortAsc(children);
+      contenders.add(contender(children.get(0), true));
+      children.stream().skip(1).forEach(child -> contenders.add(contender(child, false)));
       return contenders;
+    } catch (KeeperException | InterruptedException e) {
+      throw new Error(e);
+    }
+  }
+
+  private Contender contender(String child, boolean isLeader) {
+    try {
+      byte[] contenderId = zk.getData(rootPath + "/" + child, false, null);
+      return new Contender(new String(contenderId, charset), isLeader);
     } catch (KeeperException | InterruptedException e) {
       throw new Error(e);
     }

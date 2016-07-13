@@ -2,10 +2,9 @@ package org.shihyu.clustering.scheduler.quorum;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,8 +34,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorListener,
-    PathChildrenCacheListener, InitializingBean, DisposableBean, Closeable {
+    PathChildrenCacheListener, InitializingBean, DisposableBean, AutoCloseable {
 
+  private @Setter Charset charset = StandardCharsets.UTF_8;
   private @Setter String connectString;
   private @Setter int baseSleepTimeMs = 1000;
   private @Setter int maxRetries = 29; // org.apache.curator.retry.ExponentialBackoffRetry.MAX_RETRIES_LIMIT
@@ -71,7 +71,7 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() throws Exception {
     CloseableUtils.closeQuietly(cache);
     CloseableUtils.closeQuietly(leaderSelector);
     CloseableUtils.closeQuietly(client);
@@ -133,7 +133,7 @@ public class CuratorLeaderSelector implements LeaderElection, LeaderSelectorList
   public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
     switch (event.getType()) {
       case CHILD_REMOVED:
-        String removedId = new String(event.getData().getData(), Charset.forName("UTF-8"));
+        String removedId = new String(event.getData().getData(), charset);
         if (removedId.equals(contenderId)) {
           if (isLeader()) {
             relinquishLeadership();

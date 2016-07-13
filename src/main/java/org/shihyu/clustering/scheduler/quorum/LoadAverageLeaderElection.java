@@ -2,10 +2,8 @@ package org.shihyu.clustering.scheduler.quorum;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -95,7 +93,7 @@ public class LoadAverageLeaderElection extends BooleanLeaderElection
     client.getConnectionStateListenable().addListener(this);
     contenderSequence = client.create().creatingParentContainersIfNeeded().withProtection()
         .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
-        .forPath(rootPath + contenderPath, contenderId.getBytes("UTF-8"));
+        .forPath(rootPath + contenderPath, contenderId.getBytes(charset));
     contenderSequence = contenderSequence.replaceFirst(rootPath + "/", "");
     log.debug("Contender node [{}] created", contenderSequence);
 
@@ -114,7 +112,7 @@ public class LoadAverageLeaderElection extends BooleanLeaderElection
     if (loading.get() != current) {
       try {
         client.setData().forPath(rootPath + "/" + contenderSequence,
-            (contenderId + "#" + current).getBytes("UTF-8"));
+            (contenderId + "#" + current).getBytes(charset));
         loading.set(current);
         checkLeadership();
       } catch (Exception e) {
@@ -147,7 +145,7 @@ public class LoadAverageLeaderElection extends BooleanLeaderElection
   public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
     switch (event.getType()) {
       case CHILD_REMOVED:
-        String removedData = new String(event.getData().getData(), Charset.forName("UTF-8"));
+        String removedData = new String(event.getData().getData(), charset);
         String removedId = removedData.substring(0, removedData.lastIndexOf("#"));
         if (removedId.equals(contenderId)) {
           close();
@@ -174,7 +172,7 @@ public class LoadAverageLeaderElection extends BooleanLeaderElection
   private List<ChildLoading> getSortedChildren() throws Exception {
     return client.getChildren().forPath(rootPath).stream().map(child -> {
       try {
-        String data = new String(client.getData().forPath(rootPath + "/" + child), "UTF-8");
+        String data = new String(client.getData().forPath(rootPath + "/" + child), charset);
         String loading = data.substring(data.lastIndexOf("#") + 1);
         return new ChildLoading(child, Double.parseDouble(loading));
       } catch (NoNodeException e) {
@@ -201,7 +199,7 @@ public class LoadAverageLeaderElection extends BooleanLeaderElection
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() throws Exception {
     CloseableUtils.closeQuietly(cache);
     CloseableUtils.closeQuietly(client);
     executor.shutdownNow();

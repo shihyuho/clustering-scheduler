@@ -13,6 +13,10 @@
 	<bean id="leaderElection" class="org.shihyu.clustering.scheduler.quorum.CuratorLeaderLatch">
 		<property name="connectString" value="localhost:2181"/>
 	</bean>
+
+<!-- 	<bean id="leaderElection" class="org.shihyu.clustering.scheduler.quorum.ZooKeeperLeaderElection"> -->
+<!-- 		<property name="connectString" value="localhost:2181"/> -->
+<!-- 	</bean> -->
 	
 	<!-- Spring Scheduling -->
 	

@@ -2,10 +2,7 @@ package org.shihyu.clustering.scheduler.quorum;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -30,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CuratorLeaderLatch extends BooleanLeaderElection
-    implements PathChildrenCacheListener, DisposableBean, Closeable {
+    implements PathChildrenCacheListener, DisposableBean, AutoCloseable {
 
   private @Setter String connectString;
   private @Setter int baseSleepTimeMs = 1000;
@@ -80,7 +77,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() throws Exception {
     CloseableUtils.closeQuietly(cache);
     CloseableUtils.closeQuietly(leaderLatch);
     CloseableUtils.closeQuietly(client);
@@ -96,7 +93,7 @@ public class CuratorLeaderLatch extends BooleanLeaderElection
   public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
     switch (event.getType()) {
       case CHILD_REMOVED:
-        String removedId = new String(event.getData().getData(), Charset.forName("UTF-8"));
+        String removedId = new String(event.getData().getData(), charset);
         if (removedId.equals(contenderId)) {
           close();
           start();

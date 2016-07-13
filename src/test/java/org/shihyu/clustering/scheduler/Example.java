@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.shihyu.clustering.scheduler.quorum.LeaderElection;
@@ -13,7 +14,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Example {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     int contenders = 3;
     Collection<ConfigurableApplicationContext> contexts = new ArrayList<>();
     try {
@@ -39,6 +40,7 @@ public class Example {
       leader.relinquishLeadership();
       Assert.assertFalse(leader.isLeader());
 
+      TimeUnit.SECONDS.sleep(1); // to wait for other contenders response to NodeDeleted
       List<LeaderElection> newLeaders =
           elections.stream().filter(LeaderElection::isLeader).collect(toList());
       Assert.assertEquals(1, newLeaders.size());
