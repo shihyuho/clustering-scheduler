@@ -47,7 +47,7 @@ public class Example {
         partition = elections.stream().collect(partitioningBy(LeaderElection::isLeader));
         List<LeaderElection> newLeaders = partition.get(true);
         Assert.assertEquals(1, newLeaders.size());
-        
+
         LeaderElection newLeader = newLeaders.get(0);
         Assert.assertEquals(leader.getContenderId(), newLeader.getContenderId());
         Assert.assertEquals(contenders, newLeader.getContenders().size());
@@ -62,7 +62,7 @@ public class Example {
       leader.relinquishLeadership();
       Assert.assertFalse(leader.isLeader());
 
-      TimeUnit.SECONDS.sleep(1); // to wait for other contenders response to NodeDeleted
+      TimeUnit.SECONDS.sleep(1); // just a short wait for the followers action to NodeDeleted
       List<LeaderElection> newLeaders =
           elections.stream().filter(LeaderElection::isLeader).collect(toList());
       Assert.assertEquals(1, newLeaders.size());
