@@ -1,12 +1,12 @@
 package org.shihyu.clustering.scheduler.quorum;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -238,21 +238,16 @@ public class ZooKeeperLeaderElection
   @Override
   public Collection<Contender> getContenders() {
     try {
-      Collection<Contender> contenders = new ArrayList<>();
-      List<String> children = zk.getChildren(rootPath, false);
-      sortAsc(children);
-      contenders.add(contender(children.get(0), true));
-      children.stream().skip(1).forEach(child -> contenders.add(contender(child, false)));
-      return contenders;
+      return zk.getChildren(rootPath, false).stream().map(this::contender).collect(toList());
     } catch (KeeperException | InterruptedException e) {
       throw new Error(e);
     }
   }
 
-  private Contender contender(String child, boolean isLeader) {
+  private Contender contender(String child) {
     try {
       byte[] contenderId = zk.getData(rootPath + "/" + child, false, null);
-      return new Contender(new String(contenderId, charset), isLeader);
+      return new Contender(new String(contenderId, charset), child.equals(contenderSequence));
     } catch (KeeperException | InterruptedException e) {
       throw new Error(e);
     }

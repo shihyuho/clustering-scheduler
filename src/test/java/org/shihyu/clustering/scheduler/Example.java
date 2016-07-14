@@ -1,10 +1,12 @@
 package org.shihyu.clustering.scheduler;
 
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
@@ -24,8 +26,10 @@ public class Example {
       Collection<LeaderElection> elections =
           contexts.stream().map(ctx -> ctx.getBean(LeaderElection.class)).collect(toList());
 
-      List<LeaderElection> leaders =
-          elections.stream().filter(LeaderElection::isLeader).collect(toList());
+      Map<Boolean, List<LeaderElection>> partition =
+          elections.stream().collect(partitioningBy(LeaderElection::isLeader));
+
+      List<LeaderElection> leaders = partition.get(true);
       Assert.assertEquals(1, leaders.size());
 
       LeaderElection leader = leaders.get(0);
@@ -36,6 +40,17 @@ public class Example {
                 .filter(e -> e.getContenderId().equals(c.getId()) && e.isLeader() == c.isLeader())
                 .count());
       });
+
+      List<LeaderElection> followers = partition.get(false);
+      if (followers.size() > 0) {
+        followers.get(0).relinquishLeadership();
+        partition = elections.stream().collect(partitioningBy(LeaderElection::isLeader));
+        List<LeaderElection> newLeaders = partition.get(true);
+        Assert.assertEquals(1, newLeaders.size());
+        LeaderElection newLeader = newLeaders.get(0);
+        Assert.assertEquals(leader.getContenderId(), newLeader.getContenderId());
+        Assert.assertEquals(contenders, newLeader.getContenders().size());
+      }
 
       leader.relinquishLeadership();
       Assert.assertFalse(leader.isLeader());
