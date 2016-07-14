@@ -47,9 +47,16 @@ public class Example {
         partition = elections.stream().collect(partitioningBy(LeaderElection::isLeader));
         List<LeaderElection> newLeaders = partition.get(true);
         Assert.assertEquals(1, newLeaders.size());
+        
         LeaderElection newLeader = newLeaders.get(0);
         Assert.assertEquals(leader.getContenderId(), newLeader.getContenderId());
         Assert.assertEquals(contenders, newLeader.getContenders().size());
+        newLeader.getContenders().forEach(c -> {
+          Assert.assertEquals(1,
+              elections.stream()
+                  .filter(e -> e.getContenderId().equals(c.getId()) && e.isLeader() == c.isLeader())
+                  .count());
+        });
       }
 
       leader.relinquishLeadership();
