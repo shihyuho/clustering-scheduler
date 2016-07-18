@@ -1,4 +1,4 @@
-package org.shihyu.clustering.scheduler.quorum;
+package org.shihyu.clustering.scheduler.leader;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

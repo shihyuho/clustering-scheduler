@@ -1,4 +1,4 @@
-package org.shihyu.clustering.scheduler.quorum;
+package org.shihyu.clustering.scheduler.leader;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

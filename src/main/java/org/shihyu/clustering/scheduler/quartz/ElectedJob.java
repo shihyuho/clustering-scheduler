@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+import org.shihyu.clustering.scheduler.leader.LeaderElection;
 
 import lombok.AllArgsConstructor;
 

@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.shihyu.clustering.scheduler.quorum.Contender;
+import org.shihyu.clustering.scheduler.leader.Contender;
 
 /**
  * A manager to controls scheduled jobs

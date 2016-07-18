@@ -2,8 +2,8 @@ package org.shihyu.clustering.scheduler;
 
 import java.util.Collection;
 
-import org.shihyu.clustering.scheduler.quorum.Contender;
-import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+import org.shihyu.clustering.scheduler.leader.Contender;
+import org.shihyu.clustering.scheduler.leader.LeaderElection;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;

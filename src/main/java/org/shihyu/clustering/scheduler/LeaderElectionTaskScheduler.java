@@ -7,8 +7,8 @@ import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.shihyu.clustering.scheduler.quorum.Contender;
-import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+import org.shihyu.clustering.scheduler.leader.Contender;
+import org.shihyu.clustering.scheduler.leader.LeaderElection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;

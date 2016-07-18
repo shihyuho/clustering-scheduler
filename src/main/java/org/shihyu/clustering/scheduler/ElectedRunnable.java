@@ -2,7 +2,7 @@ package org.shihyu.clustering.scheduler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+import org.shihyu.clustering.scheduler.leader.LeaderElection;
 
 import lombok.AllArgsConstructor;
 

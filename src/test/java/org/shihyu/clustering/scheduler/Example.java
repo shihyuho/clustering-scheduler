@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
-import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+import org.shihyu.clustering.scheduler.leader.LeaderElection;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

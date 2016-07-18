@@ -1,4 +1,4 @@
-package org.shihyu.clustering.scheduler.quorum;
+package org.shihyu.clustering.scheduler.leader;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;

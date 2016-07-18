@@ -10,11 +10,11 @@
 	
 	<bean id="scheduleManager" class="org.shihyu.clustering.scheduler.ScheduleManagers" primary="true"></bean>
 	
-	<bean id="leaderElection" class="org.shihyu.clustering.scheduler.quorum.CuratorLeaderLatch">
+	<bean id="leaderElection" class="org.shihyu.clustering.scheduler.leader.CuratorLeaderLatch">
 		<property name="connectString" value="localhost:2181"/>
 	</bean>
 
-<!-- 	<bean id="leaderElection" class="org.shihyu.clustering.scheduler.quorum.ZooKeeperLeaderElection"> -->
+<!-- 	<bean id="leaderElection" class="org.shihyu.clustering.scheduler.leader.ZooKeeperLeaderElection"> -->
 <!-- 		<property name="connectString" value="localhost:2181"/> -->
 <!-- 	</bean> -->
 	

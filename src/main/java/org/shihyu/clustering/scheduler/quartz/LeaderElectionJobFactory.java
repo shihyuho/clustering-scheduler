@@ -11,8 +11,8 @@ import org.quartz.SchedulerException;
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.TriggerFiredBundle;
 import org.shihyu.clustering.scheduler.ScheduleManager;
-import org.shihyu.clustering.scheduler.quorum.Contender;
-import org.shihyu.clustering.scheduler.quorum.LeaderElection;
+import org.shihyu.clustering.scheduler.leader.Contender;
+import org.shihyu.clustering.scheduler.leader.LeaderElection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
