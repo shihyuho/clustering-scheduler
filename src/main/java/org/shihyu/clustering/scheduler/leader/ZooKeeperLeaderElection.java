@@ -154,11 +154,13 @@ public class ZooKeeperLeaderElection
           if (index == -1) { // Perhaps someone delete znode from somewhere else
             createContender();
           } else if (index == 0) {
-            log.info("[{}] Acquired the leadership", contenderId);
-            leader.set(true);
+            if (leader.compareAndSet(false, true)) {
+              log.info("[{}] Acquired the leadership", contenderId);
+            }
           } else {
-            log.info("[{}] Released the leadership", contenderId);
-            leader.set(false);
+            if (leader.compareAndSet(true, false)) {
+              log.info("[{}] Released the leadership", contenderId);
+            }
             try {
               zk.getChildren(rootPath + "/" + children.get(index - 1), znodeDeleted);
             } catch (KeeperException | InterruptedException e) {
